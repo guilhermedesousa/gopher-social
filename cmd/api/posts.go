@@ -55,7 +55,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	post, err := app.store.Posts.GetByID(ctx, postID)
+	post, err := app.store.Posts.GetByID(ctx, int64(postID))
 	if err != nil {
 		switch {
 		case errors.Is(err, store.ErrNotFound):
