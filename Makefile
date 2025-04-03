@@ -16,3 +16,7 @@ migrate-down:
 .PHONY: migrate-force-version
 migrate-force-version:
 	@migrate -path $(MIGRATIONS_PATH) -database $(DB_ADDR) force $(filter-out $@,$(MAKECMDGOALS))
+
+.PHONY: seed
+seed:
+	@go run ./cmd/cli/seed/main.go
