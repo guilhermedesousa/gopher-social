@@ -25,6 +25,11 @@ type UpdatePostPayload struct {
 	Content *string `json:"content" validate:"omitempty,max=1000"`
 }
 
+type CreateCommentPayload struct {
+	UserID  int64  `json:"user_id" validate:"required"`
+	Content string `json:"content" validate:"required,max=100"`
+}
+
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
 	if err := readJSON(w, r, &payload); err != nil {
@@ -130,6 +135,46 @@ func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (app *application) createCommentHandler(w http.ResponseWriter, r *http.Request) {
+	post := getPostFromCtx(r)
+
+	var payload CreateCommentPayload
+	if err := readJSON(w, r, &payload); err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	ctx := r.Context()
+
+	user, err := app.store.Users.GetByID(ctx, payload.UserID)
+	if err != nil {
+		switch {
+		case errors.Is(err, store.ErrNotFound):
+			app.notFoundResponse(w, r, err)
+		default:
+			app.internalServerErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	comment := &store.Comment{
+		PostID:  post.ID,
+		UserID:  payload.UserID,
+		Content: payload.Content,
+		User:    *user,
+	}
+
+	if err := app.store.Comments.Create(ctx, comment); err != nil {
+		app.internalServerErrorResponse(w, r, err)
+		return
+	}
+
+	if err := app.jsonResponse(w, http.StatusCreated, comment); err != nil {
+		app.internalServerErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *application) postContextMiddleware(next http.Handler) http.Handler {
