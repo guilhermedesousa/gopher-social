@@ -42,6 +42,13 @@ definitions:
         maxLength: 100
         type: string
     type: object
+  main.userWithToken:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/store.User'
+    type: object
   store.Comment:
     properties:
       content:
@@ -121,6 +128,8 @@ definitions:
         type: string
       id:
         type: integer
+      is_active:
+        type: boolean
       username:
         type: string
     type: object
@@ -154,7 +163,7 @@ paths:
         "201":
           description: User registered
           schema:
-            $ref: '#/definitions/store.User'
+            $ref: '#/definitions/main.userWithToken'
         "400":
           description: Bad Request
           schema: {}
@@ -383,6 +392,36 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Unfollow a user
+      tags:
+      - users
+  /users/activate/{token}:
+    put:
+      consumes:
+      - application/json
+      description: Activate a user by token
+      parameters:
+      - description: Activation token
+        in: path
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: User activated
+          schema:
+            type: string
+        "400":
+          description: Token missing
+          schema: {}
+        "404":
+          description: Token not found
+          schema: {}
+        "500":
+          description: Internal server error
+          schema: {}
+      summary: Activate a user
       tags:
       - users
   /users/feed:
