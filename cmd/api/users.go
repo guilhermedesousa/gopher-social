@@ -18,6 +18,20 @@ type FollowUser struct {
 	UserID int64 `json:"user_id"`
 }
 
+// GetUserHandler godoc
+//
+//	@Summary		Get a user
+//	@Description	Get a user by ID
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			userID	path		int	true	"User ID"
+//	@Success		200		{object}	store.User
+//	@Failure		400		{object}	error
+//	@Failure		404		{object}	error
+//	@Failure		500		{object}	error
+//	@Security		ApiKeyAuth
+//	@Router			/users/{userID} [get]
 func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := getUserFromCtx(r)
 
@@ -27,6 +41,21 @@ func (app *application) getUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// FollowUserHandler godoc
+//
+//	@Summary		Follow a user
+//	@Description	Follow a user by ID
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			userID	path		int		true	"User ID"
+//	@Success		204		{object}	string	"User followed"
+//	@Failure		400		{object}	error	"User payload missing"
+//	@Failure		404		{object}	error	"User not found"
+//	@Failure		409		{object}	error	"User already followed"
+//	@Failure		500		{object}	error	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/users/{userID}/follow [put]
 func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request) {
 	followerID := getUserFromCtx(r)
 
@@ -54,6 +83,21 @@ func (app *application) followUserHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// UnfollowUserHandler godoc
+//
+//	@Summary		Unfollow a user
+//	@Description	Unfollow a user by ID
+//	@Tags			users
+//	@Accept			json
+//	@Produce		json
+//	@Param			userID	path		int		true	"User ID"
+//	@Success		204		{object}	string	"User unfollowed"
+//	@Failure		400		{object}	error	"User payload missing"
+//	@Failure		404		{object}	error	"User not found"
+//	@Failure		409		{object}	error	"User already unfollowed"
+//	@Failure		500		{object}	error	"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/users/{userID}/unfollow [put]
 func (app *application) unfollowUserHandler(w http.ResponseWriter, r *http.Request) {
 	followerID := getUserFromCtx(r)
 

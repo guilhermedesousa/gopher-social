@@ -30,6 +30,19 @@ type CreateCommentPayload struct {
 	Content string `json:"content" validate:"required,max=100"`
 }
 
+// CreatePostHandler godoc
+//
+//	@Summary		Create a post
+//	@Description	Create a post
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			post	body		CreatePostPayload	true	"Post payload"
+//	@Success		201		{object}	store.Post			"Post created"
+//	@Failure		400		{object}	error				"Post payload missing"
+//	@Failure		500		{object}	error				"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts [post]
 func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request) {
 	var payload CreatePostPayload
 	if err := readJSON(w, r, &payload); err != nil {
@@ -61,6 +74,20 @@ func (app *application) createPostHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// GetPostHandler godoc
+//
+//	@Summary		Get a post
+//	@Description	Get a post by ID
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int	true	"Post ID"
+//	@Success		200		{object}	store.Post
+//	@Failure		400		{object}	error
+//	@Failure		404		{object}	error
+//	@Failure		500		{object}	error
+//	@Security		ApiKeyAuth
+//	@Router			/posts/{postID} [get]
 func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
@@ -78,6 +105,21 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdatePostHandler godoc
+//
+//	@Summary		Update a post
+//	@Description	Update a post by ID
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int					true	"Post ID"
+//	@Param			post	body		UpdatePostPayload	true	"Post payload"
+//	@Success		200		{object}	store.Post			"Post updated"
+//	@Failure		400		{object}	error				"Post payload missing"
+//	@Failure		404		{object}	error				"Post not found"
+//	@Failure		500		{object}	error				"Internal server error"
+//	@Security		ApiKeyAuth
+//	@Router			/posts/{postID} [put]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
