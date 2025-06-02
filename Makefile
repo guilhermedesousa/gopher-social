@@ -20,3 +20,7 @@ migrate-force-version:
 .PHONY: seed
 seed:
 	@go run ./cmd/cli/seed/main.go
+
+.PHONY: gen-docs
+gen-docs:
+	@swag init -g ./api/main.go -d cmd,internal && swag fmt
