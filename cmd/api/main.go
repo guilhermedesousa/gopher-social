@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const version = "0.0.2"
+const version = "0.0.1"
 
 //	@title			GopherSocial API
 //	@description	API for GopherSocial application, a social network for gophers.
@@ -52,6 +52,12 @@ func main() {
 			fromEmail: env.GetString("FROM_EMAIL", ""),
 			sendGrid: sendGridConfig{
 				apikey: env.GetString("SENDGRID_API_KEY", ""),
+			},
+		},
+		auth: authConfig{
+			basic: basicConfig{
+				user: env.GetString("AUTH_BASIC_USER", "admin"),
+				pass: env.GetString("AUTH_BASIC_PASS", "admin"),
 			},
 		},
 	}
