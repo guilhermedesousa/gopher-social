@@ -133,6 +133,17 @@ definitions:
       version:
         type: integer
     type: object
+  store.Role:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      level:
+        type: integer
+      name:
+        type: string
+    type: object
   store.User:
     properties:
       created_at:
@@ -143,6 +154,10 @@ definitions:
         type: integer
       is_active:
         type: boolean
+      role:
+        $ref: '#/definitions/store.Role'
+      role_id:
+        type: integer
       username:
         type: string
     type: object
@@ -268,6 +283,37 @@ paths:
       tags:
       - posts
   /posts/{postID}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a post by ID
+      parameters:
+      - description: Post ID
+        in: path
+        name: postID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a post
+      tags:
+      - posts
     get:
       consumes:
       - application/json
@@ -299,7 +345,7 @@ paths:
       summary: Get a post
       tags:
       - posts
-    put:
+    patch:
       consumes:
       - application/json
       description: Update a post by ID

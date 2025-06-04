@@ -121,7 +121,7 @@ func (app *application) getPostHandler(w http.ResponseWriter, r *http.Request) {
 //	@Failure		404		{object}	error				"Post not found"
 //	@Failure		500		{object}	error				"Internal server error"
 //	@Security		ApiKeyAuth
-//	@Router			/posts/{postID} [put]
+//	@Router			/posts/{postID} [patch]
 func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request) {
 	post := getPostFromCtx(r)
 
@@ -159,6 +159,20 @@ func (app *application) updatePostHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// DeletePostHandler godoc
+//
+//	@Summary		Delete a post
+//	@Description	Delete a post by ID
+//	@Tags			posts
+//	@Accept			json
+//	@Produce		json
+//	@Param			postID	path		int	true	"Post ID"
+//	@Success		204		{object}	string
+//	@Failure		400		{object}	error
+//	@Failure		404		{object}	error
+//	@Failure		500		{object}	error
+//	@Security		ApiKeyAuth
+//	@Router			/posts/{postID} [delete]
 func (app *application) deletePostHandler(w http.ResponseWriter, r *http.Request) {
 	postID, err := strconv.Atoi(chi.URLParam(r, "postID"))
 	if err != nil {
