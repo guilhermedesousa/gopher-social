@@ -55,11 +55,17 @@ type UserStore struct {
 func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 	query := `
 		INSERT INTO users (username, email, password, role_id)
-		VALUES ($1, $2, $3, $4) RETURNING id, created_at
+		VALUES ($1, $2, $3, (SELECT id FROM roles WHERE name = $4))
+		RETURNING id, created_at
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryDurationTimeout)
 	defer cancel()
+
+	roleName := user.Role.Name
+	if roleName == "" {
+		roleName = "user"
+	}
 
 	err := tx.QueryRowContext(
 		ctx,
@@ -67,7 +73,7 @@ func (s *UserStore) Create(ctx context.Context, tx *sql.Tx, user *User) error {
 		user.Username,
 		user.Email,
 		user.Password.hash,
-		user.RoleID,
+		roleName,
 	).Scan(
 		&user.ID,
 		&user.CreatedAt,

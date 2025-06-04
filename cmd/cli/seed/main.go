@@ -5,6 +5,7 @@ import (
 
 	"github.com/guilhermedesousa/social/internal/db"
 	"github.com/guilhermedesousa/social/internal/env"
+	"github.com/guilhermedesousa/social/internal/store"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -25,5 +26,7 @@ func main() {
 
 	log.Println("database connection pool established")
 
-	db.SeedDatabase(conn)
+	store := store.NewStorage(conn)
+
+	db.Seed(store, conn)
 }
