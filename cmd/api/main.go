@@ -9,6 +9,7 @@ import (
 	"github.com/guilhermedesousa/social/internal/db"
 	"github.com/guilhermedesousa/social/internal/env"
 	"github.com/guilhermedesousa/social/internal/mailer"
+	"github.com/guilhermedesousa/social/internal/ratelimiter"
 	"github.com/guilhermedesousa/social/internal/store"
 	"github.com/guilhermedesousa/social/internal/store/cache"
 	"github.com/joho/godotenv"
@@ -74,6 +75,11 @@ func main() {
 				iss:    "gophersocial",
 			},
 		},
+		rateLimiter: ratelimiter.Config{
+			RequestPerTimeFrame: env.GetInt("RATELIMITER_REQUESTS_COUNT", 20),
+			TimeFrame:           time.Second * 5,
+			Enabled:             env.GetBool("RATE_LIMITER_ENABLED", true),
+		},
 	}
 
 	// Logger
@@ -102,12 +108,23 @@ func main() {
 		defer rdb.Close()
 	}
 
-	store := store.NewStorage(db)
-	cacheStorage := cache.NewRedisStorage(rdb)
+	// Rate limiter
+	rateLimiter := ratelimiter.NewFixedWindowLimiter(
+		cfg.rateLimiter.RequestPerTimeFrame,
+		cfg.rateLimiter.TimeFrame,
+	)
 
+	// Mailer
 	mailer := mailer.NewSendgrid(cfg.mail.sendGrid.apikey, cfg.mail.fromEmail)
 
-	jwtAuthenticator := auth.NewJWTAuthenticator(cfg.auth.token.secret, cfg.auth.token.iss, cfg.auth.token.iss)
+	jwtAuthenticator := auth.NewJWTAuthenticator(
+		cfg.auth.token.secret,
+		cfg.auth.token.iss,
+		cfg.auth.token.iss,
+	)
+
+	store := store.NewStorage(db)
+	cacheStorage := cache.NewRedisStorage(rdb)
 
 	app := &application{
 		config:        cfg,
@@ -116,6 +133,7 @@ func main() {
 		logger:        logger,
 		mailer:        mailer,
 		authenticator: jwtAuthenticator,
+		rateLimiter:   rateLimiter,
 	}
 
 	mux := app.mount()

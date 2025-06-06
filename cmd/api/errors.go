@@ -33,3 +33,11 @@ func (app *application) unauthorizedErrorResponse(w http.ResponseWriter, r *http
 	app.logger.Warnf("unauthorized error", "method", r.Method, "path", r.URL.Path, "error", err.Error())
 	app.errorJSON(w, http.StatusUnauthorized, "unauthorized")
 }
+
+func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request, retryAfter string) {
+	app.logger.Warnw("rate limit exceeded", "method", r.Method, "path", r.URL.Path)
+
+	w.Header().Set("Retry-After", retryAfter)
+
+	app.errorJSON(w, http.StatusTooManyRequests, "rate limit exceeded, retry after: "+retryAfter)
+}
